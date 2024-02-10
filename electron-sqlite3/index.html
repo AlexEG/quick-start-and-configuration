@@ -9,13 +9,15 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
     />
-    <title>Hello World!</title>
+    <title>electron + sqlite3</title>
   </head>
+  <link rel="stylesheet" href="styles.css" />
   <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>, Chromium
-    <span id="chrome-version"></span>, and Electron
-    <span id="electron-version"></span>.
+    <input type="text" placeholder="title" id="title" />
+    <input type="text" placeholder="rank" id="rank" />
+    <input type="text" placeholder="chapters" id="chapters" />
+    <input type="text" placeholder="volumes" id="volumes" />
+    <button id="add-to-db">Add To Database</button>
 
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>

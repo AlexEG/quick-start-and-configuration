@@ -18,3 +18,23 @@
 // window.electronAPI.createDatabaseFile("database1");
 
 // console.log(window.electronAPI.readDatabaseFile("manga"));
+
+const title = document.querySelector("#title");
+const rank = document.querySelector("#rank");
+const chapters = document.querySelector("#chapters");
+const volumes = document.querySelector("#volumes");
+
+const addDataToDBBtn = document.querySelector("#add-to-db");
+
+addDataToDBBtn.addEventListener("click", addFunc);
+
+function addFunc() {
+  const addDataToDB = [
+    title.value,
+    "#" + rank.value,
+    chapters.value,
+    volumes.value,
+  ];
+
+  window.electronAPI.addDataToDB("manga", addDataToDB);
+}

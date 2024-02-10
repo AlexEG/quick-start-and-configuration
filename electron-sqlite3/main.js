@@ -32,33 +32,54 @@ app.whenReady().then(() => {
   // ------------------ //
   const CHANNEL_NAME = "read-db";
   const MESSAGE = "return from IPC channel from main.js";
-  console.log("data from main.js", readDB("manga"));
-  ipcMain.on(CHANNEL_NAME, async (event, databaseFile) => {
+
+  // ipcMain.on(CHANNEL_NAME, async (event, databaseFile) => {
+  //   try {
+  //     let dbFile = new sqlite3.Database(
+  //       `./db/${databaseFile}.db`,
+  //       sqlite3.OPEN_READWRITE,
+  //       (err) => {
+  //         if (err) return console.error(err.message);
+  //         // console.info("[200] connecting to database");
+  //       }
+  //     );
+  //     const getDataDB = `SELECT * FROM manga`;
+
+  //     dbFile.all(getDataDB, [], (err, rows) => {
+  //       if (err) return console.error(err.message);
+  //       // console.log("DB data has been reserved");
+  //       event.returnValue = rows;
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     console.log("not working!!!");
+  //   }
+  // });
+
+  // ipcMain.on("create-db", async (event, databaseFile) => {
+  //   try {
+  //     createDB(databaseFile);
+  //   } catch (error) {
+  //     console.error(error);
+  //     console.log("not working!!!");
+  //   }
+  // });
+
+  ipcMain.on("insert-db", async (event, databaseFile, addData) => {
     try {
       let dbFile = new sqlite3.Database(
         `./db/${databaseFile}.db`,
         sqlite3.OPEN_READWRITE,
         (err) => {
           if (err) return console.error(err.message);
-          // console.info("[200] connecting to database");
         }
       );
-      const getDataDB = `SELECT * FROM manga`;
+      const addAnimeToDbSQL = `INSERT INTO manga(title,rank,chapters,volumes) VALUES (?,?,?,?)`;
 
-      dbFile.all(getDataDB, [], (err, rows) => {
+      dbFile.run(addAnimeToDbSQL, addData, (err) => {
         if (err) return console.error(err.message);
-        // console.log("DB data has been reserved");
-        event.returnValue = rows;
+        console.info("data has been added successfully");
       });
-    } catch (error) {
-      console.error(error);
-      console.log("not working!!!");
-    }
-  });
-
-  ipcMain.on("create-db", async (event, databaseFile) => {
-    try {
-      createDB(databaseFile);
     } catch (error) {
       console.error(error);
       console.log("not working!!!");
