@@ -4,6 +4,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
 const sqlite3 = require("sqlite3").verbose();
+const { readDB, createDB } = require("./ipc/db");
 
 const createWindow = () => {
   // Create the browser window.
@@ -20,69 +21,6 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-
-  // ------------------ //
-
-  function readDB() {
-    let dbFile = new sqlite3.Database(
-      "./db/manga.db",
-      sqlite3.OPEN_READWRITE,
-      (err) => {
-        if (err) return console.error(err.message);
-        console.info("[200] connecting to test.db database");
-      }
-    );
-
-    const getDataDB = `SELECT * FROM manga`;
-    dbFile.all(getDataDB, [], (err, rows) => {
-      if (err) return console.error(err.message);
-
-      console.log("DB data has been reserved ");
-      console.log(rows);
-    });
-  }
-
-  // function createDB() {
-  //   let animeDB = new sqlite3.Database(
-  //     "db/manga.db",
-  //     sqlite3.OPEN_READWRITE,
-  //     (err) => {
-  //       if (err) return console.error(err.message);
-  //       console.info("[200] connecting to anime database");
-  //     }
-  //   );
-  //   const animeSQL = `CREATE TABLE users(first_name,last_name,username,password,email)`;
-  //   // animeDB.run(animeSQL);
-
-  //   const addAnimeToDbSQL = `INSERT INTO users(first_name,last_name,username,password,email) VALUES (?,?,?,?,?)`;
-
-  //   for (let i = 102; i <= 150; i++) {
-  //     const addDataToAnimeDB = [
-  //       "user" + i,
-  //       "user-" + i,
-  //       "User " + i,
-  //       "password " + i,
-  //       `user${i}@gmail.com`,
-  //     ];
-
-  //     animeDB.run(addAnimeToDbSQL, addDataToAnimeDB, (err) => {
-  //       if (err) return console.error(err.message);
-  //       console.info("animeDB: data has been added successfully");
-  //     });
-  //   }
-  // }
-
-  ipcMain.on("read-db", async (event, data) => {
-    try {
-      console.log("WE ARE IN BOYS");
-      readDB();
-    } catch (error) {
-      console.error(error);
-      console.log("not working!!!");
-    }
-  });
-
-  // ------------------ //
 };
 
 // This method will be called when Electron has finished
@@ -90,6 +28,44 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow();
+
+  // ------------------ //
+  const CHANNEL_NAME = "read-db";
+  const MESSAGE = "return from IPC channel from main.js";
+  console.log("data from main.js", readDB("manga"));
+  ipcMain.on(CHANNEL_NAME, async (event, databaseFile) => {
+    try {
+      let dbFile = new sqlite3.Database(
+        `./db/${databaseFile}.db`,
+        sqlite3.OPEN_READWRITE,
+        (err) => {
+          if (err) return console.error(err.message);
+          // console.info("[200] connecting to database");
+        }
+      );
+      const getDataDB = `SELECT * FROM manga`;
+
+      dbFile.all(getDataDB, [], (err, rows) => {
+        if (err) return console.error(err.message);
+        // console.log("DB data has been reserved");
+        event.returnValue = rows;
+      });
+    } catch (error) {
+      console.error(error);
+      console.log("not working!!!");
+    }
+  });
+
+  ipcMain.on("create-db", async (event, databaseFile) => {
+    try {
+      createDB(databaseFile);
+    } catch (error) {
+      console.error(error);
+      console.log("not working!!!");
+    }
+  });
+
+  // ------------------ //
 
   app.on("activate", () => {
     // On macOS it's common to re-create a window in the app when the

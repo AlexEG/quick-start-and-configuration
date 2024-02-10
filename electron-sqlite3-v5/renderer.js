@@ -14,3 +14,7 @@
 // signUpForm.addEventListener("submit", signUp);
 
 // window.require = require;
+
+// window.electronAPI.createDatabaseFile("database1");
+
+// console.log(window.electronAPI.readDatabaseFile("manga"));
