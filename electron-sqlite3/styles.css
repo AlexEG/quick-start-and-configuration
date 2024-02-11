@@ -1,0 +1,7 @@
+input {
+  min-width: 5rem;
+  border: white;
+}
+body {
+  background-color: #111;
+}
